@@ -15,7 +15,11 @@ const pdController = async(req, res)=>{
 
         //Delete image from Supabase
         if(product.file){
+            
+            console.log("FULL URL:", product.file);
             const fileName = product.file.split("/").pop();
+            console.log("FILE NAME:", fileName);
+
             const {err} = await supabase.storage
                 .from("productimages")
                 .remove([fileName]);
