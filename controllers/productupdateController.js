@@ -1,4 +1,5 @@
 import dashboardModel from "../models/dashboardModel.js";
+import supabase from "../config/supabase.js";
 
 const puController = async(req, res)=>{
     try{
@@ -6,11 +7,46 @@ const puController = async(req, res)=>{
         //1. Get old data
         const oldData = await dashboardModel.findById(id);
 
-        //2. Decide old data
-        const fileName = req.file ? req.file.filename : oldData.file;
+        if(!oldData){
+            return res.status(404).json({
+                message:"Product not found"
+            });
+        }
+        let imageUrl = oldData.file;
 
-        //3. Update Data
-        await dashboardModel.findByIdAndUpdate(
+        //If new image uploaded
+        if(req.file){
+            //Delete old image from Supabase
+            if(oldData.file){
+                const oldFileName = oldData.file.split("/").pop();
+                await supabase.storage
+                    .from("productimages")
+                    .remove([oldFileName]);
+            }
+            //Upload new image
+            const fileName = `${Date.now()}-${req.file.originalname.replace(/\s+/g, "-")}`;
+
+            const {data, err} = await supabase.storage
+                    .from("productimages")
+                    .upload(fileName, req.file.buffer, {
+                        contentType:req.file.mimetype
+                    });
+            if(err){
+                console.log(err);
+                return res.status(500).json({
+                    message:err.message
+                });
+            }
+            //Get Public URL
+            const {data:publicUrlData} = supabase.storage
+                    .from("productimages")
+                    .getPublicUrl(fileName);
+            imageUrl = publicUrlData.publicUrl;
+        
+        }
+
+        //Update Product
+        const updateProduct = await dashboardModel.findByIdAndUpdate(
             id,
             {
                 productcode: req.body.productcode,
@@ -23,12 +59,18 @@ const puController = async(req, res)=>{
                 cashondeli: req.body.cashondeli || oldData.cashondeli,
                 warranty: req.body.warranty || oldData.warranty,
                 description: req.body.description || oldData.description,
-                file: fileName
+                file: imageUrl
             },
             {returnDocument: true}
         );
-        res.json("Updated Successfully");
+
+        res.status(200).json({
+            message: "Updated Successfully",
+            updateProduct
+        });
     }catch(err){
+        console.log(err);
+        
         res.status(500).json({message: err.message});
     }
 }
