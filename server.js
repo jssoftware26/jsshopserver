@@ -17,9 +17,12 @@ app.use(cors({
 
 app.use(session({
     secret:"secretkey",
-    resave:true,
+    resave:false,
     saveUninitialized:false,
-    cookie:{secure:false}
+    cookie:{
+        secure:true,
+        sameSite:"none"
+    }
 }));
 
 app.use(express.json());
