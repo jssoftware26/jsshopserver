@@ -10,6 +10,8 @@ const app = express();
 import route from "./route/route.js";
 import "./config/db.js";
 
+app.set("trust proxy", 1); //Render need this when behind proxy
+
 app.use(cors({
     origin:"https://jsshopmm.onrender.com",
     credentials:true
@@ -20,8 +22,10 @@ app.use(session({
     resave:false,
     saveUninitialized:false,
     cookie:{
-        secure:true,
-        sameSite:"none",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.NODE_ENV === "production"
+            ? "none"
+            : "lax",
         maxAge: 168 * 60 * 60 * 1000 //7 Days
     }
 }));

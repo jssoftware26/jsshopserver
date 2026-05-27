@@ -14,6 +14,14 @@ const useraccloginController = async(req, res)=>{
         if(!match){
             return res.status(400).json({message: "Wrong password"});
         }
+
+        // SAVE SESSION
+        req.session.user = {
+            id: useraccExist._id,
+            username : useraccExist.username,
+            email : useraccExist.email
+        };
+
         res.json({
             message: "Login success",
             useraccExist:{    //Save Login User's Data for Order Form

@@ -69,6 +69,21 @@ router.get("/myaccount/:id", userAccountGetController);
 
 router.get("/admin/customer", customerController);
 
+router.get("/check-auth",(req,res)=>{
+
+    if(req.session.user){
+        return res.json({
+            authenticated:true,
+            user:req.session.user
+        });
+    }
+
+    res.json({
+        authenticated:false
+    });
+});
+
+
 //Order Router
 router.post("/orderpage", orderController);
 router.get("/myorder", orderGetController);
