@@ -1,7 +1,6 @@
 import express from "express";
 import cors from "cors";
 import session from "express-session";
-import MongoStore from "connect-mongo";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -10,8 +9,6 @@ const app = express();
 //Import packages
 import route from "./route/route.js";
 import "./config/db.js";
-
-app.set("trust proxy", 1); //Render need this when behind proxy
 
 app.use(cors({
     origin:"https://jsshopmm.onrender.com",
@@ -22,14 +19,9 @@ app.use(session({
     secret:"secretkey",
     resave:false,
     saveUninitialized:false,
-    //Store session in mongo
-    store: MongoStore.create({
-        mongoUrl: process.env.MONGO_URI
-    }),
     cookie:{
-        secure: true,
-        sameSite:"none",
-        maxAge: 168 * 60 * 60 * 1000 //7 Days
+        secure:true,
+        sameSite:"none"
     }
 }));
 
