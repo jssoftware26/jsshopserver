@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import session from "express-session";
+import MongoStore from "connect-mongo";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -21,11 +22,13 @@ app.use(session({
     secret:"secretkey",
     resave:false,
     saveUninitialized:false,
+    //Store session in mongo
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGO_URI
+    }),
     cookie:{
-        secure: process.env.NODE_ENV === "production",
-        sameSite: process.env.NODE_ENV === "production"
-            ? "none"
-            : "lax",
+        secure: true,
+        sameSite:"none",
         maxAge: 168 * 60 * 60 * 1000 //7 Days
     }
 }));

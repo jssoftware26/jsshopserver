@@ -16,21 +16,24 @@ const useraccloginController = async(req, res)=>{
         }
 
         // SAVE SESSION
-        req.session.user = {
-            id: useraccExist._id,
-            username : useraccExist.username,
-            email : useraccExist.email
-        };
-
-        res.json({
-            message: "Login success",
-            useraccExist:{    //Save Login User's Data for Order Form
-                _id: useraccExist._id,
-                username: useraccExist.username,
-                phonenumber: useraccExist.phonenumber,
-                address: useraccExist.address
+        req.session.save((err)=>{
+            if(err){
+                return res.status(500).json({
+                    message: err.message
+                });
             }
-        });
+
+            res.json({
+                message: "Login success",
+                useraccExist:{    //Save Login User's Data for Order Form
+                    _id: useraccExist._id,
+                    username: useraccExist.username,
+                    phonenumber: useraccExist.phonenumber,
+                    address: useraccExist.address
+                }
+            });
+        })
+        
     }catch(err){
         res.status(500).json({message:err.message});
     }
